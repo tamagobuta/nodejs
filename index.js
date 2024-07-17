@@ -1,26 +1,41 @@
 const express = require('express');
 const axios = require('axios');
+const cors = require('cors');
 const app = express();
 
+app.use(cors());
 app.use(express.json());
 
-app.post('/runners/create', async (req, res) => {
-    try {
-        const response = await axios.post('http://api.paiza.io/runners/create', req.body);
-        res.json(response.data);
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-});
+app.post('/execute', async (req, res) => {
+    const { source_code, language, input } = req.body;
 
-app.get('/runners/get_details', async (req, res) => {
     try {
-        const response = await axios.get('http://api.paiza.io/runners/get_details', {
-            params: req.query
+        const response = await axios.post('http://api.paiza.io/runners/create', {
+            source_code,
+            language,
+            input,
+            api_key: 'guest'
         });
-        res.json(response.data);
+
+        const { id } = response.data;
+
+        setTimeout(async () => {
+            try {
+                const result = await axios.get('http://api.paiza.io/runners/get_details', {
+                    params: {
+                        id,
+                        api_key: 'guest'
+                    }
+                });
+
+                res.json(result.data);
+            } catch (error) {
+                res.status(500).json({ error: 'Error fetching the execution result.' });
+            }
+        }, 2000);
+
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        res.status(500).json({ error: 'Error executing the code.' });
     }
 });
 
