@@ -6,23 +6,33 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+const API_KEY = process.env.API_KEY || 'guest'; // 環境変数からAPIキーを取得
+
 app.post('/runners/create', async (req, res) => {
     try {
-        const response = await axios.post('http://api.paiza.io/runners/create', req.body);
+        const response = await axios.post('http://api.paiza.io/runners/create', {
+            ...req.body,
+            api_key: API_KEY // APIキーを追加
+        });
         res.json(response.data);
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        console.error('Error creating runner:', error.response ? error.response.data : error.message);
+        res.status(500).json({ error: error.response ? error.response.data : error.message });
     }
 });
 
 app.get('/runners/get_details', async (req, res) => {
     try {
         const response = await axios.get('http://api.paiza.io/runners/get_details', {
-            params: req.query
+            params: {
+                ...req.query,
+                api_key: API_KEY // APIキーを追加
+            }
         });
         res.json(response.data);
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        console.error('Error getting runner details:', error.response ? error.response.data : error.message);
+        res.status(500).json({ error: error.response ? error.response.data : error.message });
     }
 });
 
