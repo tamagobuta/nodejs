@@ -6,19 +6,17 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-const API_KEY = process.env.API_KEY || 'guest'; // 環境変数からAPIキーを取得
+const API_KEY = process.env.API_KEY || 'guest';
 
-// ヘルスチェックエンドポイント
 app.get('/health', (req, res) => {
     res.json({ status: 'OK' });
 });
 
-// ランナー作成エンドポイント
 app.post('/runners/create', async (req, res) => {
     try {
         const response = await axios.post('http://api.paiza.io/runners/create', {
             ...req.body,
-            api_key: API_KEY // APIキーを追加
+            api_key: API_KEY
         });
         res.json(response.data);
     } catch (error) {
@@ -27,13 +25,12 @@ app.post('/runners/create', async (req, res) => {
     }
 });
 
-// ランナー詳細取得エンドポイント
 app.get('/runners/get_details', async (req, res) => {
     try {
         const response = await axios.get('http://api.paiza.io/runners/get_details', {
             params: {
                 ...req.query,
-                api_key: API_KEY // APIキーを追加
+                api_key: API_KEY
             }
         });
         res.json(response.data);
